@@ -1,26 +1,22 @@
-import { Component, OnInit } from '@angular/core';
-import { UsuarioService } from '../../services/usuario-service';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-@Component({
-  selector: 'app-ver-usuarios',
-  templateUrl: './ver-usuarios.component.html',
-  styleUrls: ['./ver-usuarios.component.css']
-})
-export class VerUsuariosComponent implements OnInit {
-  usuarios: any[] = [];
-  errorMessage: string = '';
+import { UsuariosComponent } from './usuarios-component';
 
-  constructor(private userService: UsuarioService) { }
+describe('UsuarioComponent', () => {
+  let component: UsuariosComponent;
+  let fixture: ComponentFixture<UsuariosComponent>;
 
-  ngOnInit(): void {
-    this.userService.getUsers().subscribe({
-      next: (data) => {
-        this.usuarios = data;
-      },
-      error: (err) => {
-        console.error('Error al cargar usuarios', err);
-        this.errorMessage = 'No se pudo conectar con el microservicio de usuarios.';
-      }
-    });
-  }
-}
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [UsuariosComponent],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(UsuariosComponent);
+    component = fixture.componentInstance;
+    await fixture.whenStable();
+  });
+
+  it('should create', () => {
+    expect(component).toBeTruthy();
+  });
+});

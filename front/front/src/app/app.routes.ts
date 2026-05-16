@@ -1,14 +1,19 @@
 import { Routes } from '@angular/router';
 import { VerJuegosComponent } from './pages/ver-juegos-component/ver-juegos-component';
-import { VerUsuariosComponent } from './pages/usuarios-component/usuarios-component';
+import { UsuariosComponent } from './pages/usuarios-component/usuarios-component';
+import { BilleteraComponent } from './pages/billetera-component/billetera-component';
 
 export const routes: Routes = [
-  { 
-    path: 'juegos', 
-    component: VerJuegosComponent 
+  {
+    path: 'juegos',
+    component: VerJuegosComponent
   },
-  { 
-    path: 'usuarios', 
-    component: VerUsuariosComponent 
+  {
+    path: 'usuarios',
+    component: UsuariosComponent
+  },
+  {
+    path: 'billetera',
+    component: BilleteraComponent
   },
 ];

@@ -1,0 +1,168 @@
+<div class="wallet-wrapper">
+
+  <!-- Orbes de fondo -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <!-- HEADER -->
+  <header class="wallet-header">
+    <div class="header-badge">💳 Sistema de Billeteras</div>
+    <h1 class="main-title">
+      Mis<br>
+      <span class="title-accent">Billeteras</span>
+    </h1>
+    <p class="subtitle">Gestiona tus fondos en tiempo real</p>
+
+    <!-- Resumen general -->
+    <div class="stats-row" *ngIf="!cargando">
+      <div class="stat-item">
+        <span class="stat-number">{{ billeteras.length }}</span>
+        <span class="stat-label">Total</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">{{ billeterasActivas }}</span>
+        <span class="stat-label">Activas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="stat-item">
+        <span class="stat-number">{{ totalBloqueado | number:'1.0-0' }}</span>
+        <span class="stat-label">Bloqueado</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- LOADING -->
+  <div class="loading-state" *ngIf="cargando">
+    <div class="spinner-ring"></div>
+    <p class="loading-text">Cargando billeteras<span class="dots">...</span></p>
+  </div>
+
+  <!-- CONTENIDO -->
+  <main class="main-content" *ngIf="!cargando">
+
+    <!-- Filtros -->
+    <div class="filters-bar">
+      <button class="filter-btn" [class.active]="filtroActivo === 'todas'" (click)="setFiltro('todas')">Todas</button>
+      <button class="filter-btn" [class.active]="filtroActivo === 'activo'" (click)="setFiltro('activo')">Activas</button>
+      <button class="filter-btn" [class.active]="filtroActivo === 'bloqueado'" (click)="setFiltro('bloqueado')">Bloqueadas</button>
+    </div>
+
+    <!-- Grid -->
+    <div class="wallets-grid">
+      <div
+        class="wallet-card"
+        *ngFor="let billetera of billeterasFiltradas; let i = index"
+        [class.bloqueada]="billetera.estado === 'bloqueado'"
+        [style.animation-delay]="i * 0.1 + 's'"
+        (click)="abrirDetalle(billetera)">
+
+        <!-- Franja superior con moneda -->
+        <div class="card-top">
+          <div class="currency-badge">{{ billetera.moneda }}</div>
+          <div class="status-badge" [class.activo]="billetera.estado === 'activo'" [class.bloqueado]="billetera.estado === 'bloqueado'">
+            <span class="status-dot"></span>
+            {{ billetera.estado === 'activo' ? 'Activa' : 'Bloqueada' }}
+          </div>
+        </div>
+
+        <!-- Saldo principal -->
+        <div class="saldo-section">
+          <p class="saldo-label">Saldo disponible</p>
+          <h2 class="saldo-amount">
+            <span class="currency-symbol">{{ billetera.moneda }}</span>
+            {{ billetera.saldo | number:'1.0-2' }}
+          </h2>
+          <div class="saldo-bloqueado" *ngIf="billetera.saldo_bloqueado > 0">
+            <span class="lock-icon">🔒</span>
+            Bloqueado: {{ billetera.moneda }} {{ billetera.saldo_bloqueado | number:'1.0-2' }}
+          </div>
+        </div>
+
+        <!-- Footer de la card -->
+        <div class="card-footer">
+          <div class="card-meta">
+            <span class="meta-label">ID Billetera</span>
+            <span class="meta-value">#{{ billetera.id_billetera }}</span>
+          </div>
+          <div class="card-meta">
+            <span class="meta-label">Usuario</span>
+            <span class="meta-value">#{{ billetera.id_usuario }}</span>
+          </div>
+          <div class="card-meta">
+            <span class="meta-label">Creada</span>
+            <span class="meta-value">{{ formatearFecha(billetera.fecha_creacion) }}</span>
+          </div>
+        </div>
+
+        <!-- Hover CTA -->
+        <div class="card-hover-cta">
+          <span>Ver detalle →</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="billeterasFiltradas.length === 0">
+      <span class="empty-icon">💳</span>
+      <p>No hay billeteras en este estado</p>
+    </div>
+
+  </main>
+
+  <!-- MODAL DETALLE -->
+  <div class="modal-backdrop" *ngIf="mostrarModal" (click)="cerrarModal()">
+    <div class="modal-panel" (click)="$event.stopPropagation()" *ngIf="billeteraSeleccionada">
+
+      <button class="modal-close" (click)="cerrarModal()">✕</button>
+
+      <div class="modal-header">
+        <div class="modal-currency">{{ billeteraSeleccionada.moneda }}</div>
+        <h2 class="modal-title">Billetera #{{ billeteraSeleccionada.id_billetera }}</h2>
+        <div class="status-badge lg" [class.activo]="billeteraSeleccionada.estado === 'activo'" [class.bloqueado]="billeteraSeleccionada.estado === 'bloqueado'">
+          <span class="status-dot"></span>
+          {{ billeteraSeleccionada.estado === 'activo' ? 'Activa' : 'Bloqueada' }}
+        </div>
+      </div>
+
+      <div class="modal-saldo">
+        <p class="modal-saldo-label">Saldo disponible</p>
+        <p class="modal-saldo-amount">
+          {{ billeteraSeleccionada.moneda }} {{ billeteraSeleccionada.saldo | number:'1.0-2' }}
+        </p>
+        <p class="modal-saldo-bloqueado" *ngIf="billeteraSeleccionada.saldo_bloqueado > 0">
+          🔒 Saldo bloqueado: {{ billeteraSeleccionada.moneda }} {{ billeteraSeleccionada.saldo_bloqueado | number:'1.0-2' }}
+        </p>
+      </div>
+
+      <div class="modal-details">
+        <div class="detail-row">
+          <span class="detail-key">ID Usuario</span>
+          <span class="detail-val">#{{ billeteraSeleccionada.id_usuario }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Fecha creación</span>
+          <span class="detail-val">{{ formatearFecha(billeteraSeleccionada.fecha_creacion) }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Moneda</span>
+          <span class="detail-val">{{ billeteraSeleccionada.moneda }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Estado</span>
+          <span class="detail-val">{{ billeteraSeleccionada.estado }}</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn-eliminar" (click)="eliminar(billeteraSeleccionada.id_billetera)">
+          🗑 Eliminar billetera
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

@@ -1,12 +1,15 @@
-import { Component } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { JuegosService } from './juegos-service';
 
-@Component({
-  selector: 'app-ver-juegos-component',
+describe('JuegosService', () => {
+  let service: JuegosService;
 
-  imports: [],
+  beforeEach(() => {
+    TestBed.configureTestingModule({});
+    service = TestBed.inject(JuegosService);
+  });
 
-  templateUrl: './ver-juegos-component.html',
-
-  styleUrl: './ver-juegos-component.scss',
-})
-export class VerJuegosComponent {}
+  it('should be created', () => {
+    expect(service).toBeTruthy();
+  });
+});

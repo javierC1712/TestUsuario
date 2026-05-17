@@ -1,127 +1,156 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { UsuariosService } from '../../services/usuario-service';
 
-export interface Usuario {
-  id_usuario: number;
-  username: string;
-  email: string;
-  Password_hash: string;
-  estado: string;
-  rol: string;
-}
-
 @Component({
-  selector: 'app-usuarios-component',
+  selector: 'app-usuarios',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './usuarios-component.html',
-  styleUrl: './usuarios-component.scss',
+  styleUrls: ['./usuarios-component.scss']
 })
 export class UsuariosComponent implements OnInit {
-  private usuariosService = inject(UsuariosService);
 
-  usuarios: Usuario[] = [];
+  // Listas de datos
+  usuarios: any[] = [];
+  usuariosFiltrados: any[] = [];
+  rolesUnicos: string[] = ['ADMIN', 'JUGADOR', 'USER'];
+
+  // Estados de carga y contadores exigidos por el HTML
   cargando: boolean = true;
-  filtroEstado: string = 'todos';
-  filtroRol: string = 'todos';
-  busqueda: string = '';
+  totalActivos: number = 0;
+  totalAdmins: number = 0; // 👈 ¡Arregla el error de totalAdmins!
 
-  usuarioSeleccionado: Usuario | null = null;
+  // Variables de Filtros y Búsqueda exigidas por los [(ngModel)]
+  busqueda: string = '';
+  filtroEstado: string = '';
+  filtroRol: string = '';
+
+  // Control de Modales y objetos de formularios
   mostrarModal: boolean = false;
   mostrarModalCrear: boolean = false;
-
-  nuevoUsuario = {
+  
+  usuarioSeleccionado: any = null;
+  nuevoUsuario: any = {
     username: '',
     email: '',
-    Password_hash: '',
-    estado: 'activo',
-    rol: 'jugador',
+    Password: '',
+    rol: 'JUGADOR',
+    estado: 'ACTIVO'
   };
 
-  get usuariosFiltrados(): Usuario[] {
-    return this.usuarios.filter(u => {
-      const coincideEstado = this.filtroEstado === 'todos' || u.estado === this.filtroEstado;
-      const coincideRol = this.filtroRol === 'todos' || u.rol === this.filtroRol;
-      const coincideBusqueda =
-        this.busqueda === '' ||
-        u.username.toLowerCase().includes(this.busqueda.toLowerCase()) ||
-        u.email.toLowerCase().includes(this.busqueda.toLowerCase());
-      return coincideEstado && coincideRol && coincideBusqueda;
-    });
-  }
-
-  get rolesUnicos(): string[] {
-    return [...new Set(this.usuarios.map(u => u.rol))];
-  }
-
-  get totalActivos(): number {
-    return this.usuarios.filter(u => u.estado === 'activo').length;
-  }
-
-  get totalAdmins(): number {
-    return this.usuarios.filter(u => u.rol === 'admin').length;
-  }
-
-  abrirDetalle(usuario: Usuario): void {
-    this.usuarioSeleccionado = { ...usuario };
-    this.mostrarModal = true;
-  }
-
-  cerrarModal(): void {
-    this.mostrarModal = false;
-    this.usuarioSeleccionado = null;
-  }
-
-  abrirModalCrear(): void {
-    this.nuevoUsuario = { username: '', email: '', Password_hash: '', estado: 'activo', rol: 'jugador' };
-    this.mostrarModalCrear = true;
-  }
-
-  cerrarModalCrear(): void {
-    this.mostrarModalCrear = false;
-  }
-
-  async crear(): Promise<void> {
-    try {
-      const creado = await this.usuariosService.crearUsuario(this.nuevoUsuario);
-      this.usuarios.push(creado);
-      this.cerrarModalCrear();
-    } catch (error) {
-      console.error('Error al crear usuario:', error);
-    }
-  }
-
-  async editar(): Promise<void> {
-    if (!this.usuarioSeleccionado) return;
-    try {
-      await this.usuariosService.editarUsuario(this.usuarioSeleccionado);
-      const idx = this.usuarios.findIndex(u => u.id_usuario === this.usuarioSeleccionado!.id_usuario);
-      if (idx !== -1) this.usuarios[idx] = { ...this.usuarioSeleccionado };
-      this.cerrarModal();
-    } catch (error) {
-      console.error('Error al editar usuario:', error);
-    }
-  }
-
-  async eliminar(id: number): Promise<void> {
-    try {
-      await this.usuariosService.eliminarUsuario(id);
-      this.usuarios = this.usuarios.filter(u => u.id_usuario !== id);
-      this.cerrarModal();
-    } catch (error) {
-      console.error('Error al eliminar usuario:', error);
-    }
-  }
+  constructor(
+    private _usuariosService: UsuariosService,
+    private cdr: ChangeDetectorRef 
+  ) {}
 
   async ngOnInit() {
+    await this.cargarUsuarios();
+  }
+
+  // Cargar lista desde el Microservicio
+  async cargarUsuarios() {
+    this.cargando = true;
     try {
-      this.usuarios = await this.usuariosService.obtenerUsuarios();
+      const data = await this._usuariosService.obtenerUsuarios();
+      this.usuarios = data || [];
+      this.filtrarUsuarios(); // Aplica filtros iniciales
     } catch (error) {
-      console.error('Error al cargar usuarios:', error);
+      console.error('Error al mapear usuarios:', error);
+      this.usuarios = [];
+      this.usuariosFiltrados = [];
     } finally {
-      this.cargando = false;
+      this.cargando = false; 
+      this.cdr.detectChanges(); 
+    }
+  }
+
+  // Función lógica para buscar y filtrar en tiempo real
+  filtrarUsuarios() {
+    this.usuariosFiltrados = this.usuarios.filter(u => {
+      const cumpleBusqueda = !this.busqueda || 
+        (u.nombre && u.nombre.toLowerCase().includes(this.busqueda.toLowerCase())) ||
+        (u.username && u.username.toLowerCase().includes(this.busqueda.toLowerCase())) ||
+        (u.email && u.email.toLowerCase().includes(this.busqueda.toLowerCase()));
+
+      const cumpleRol = !this.filtroRol || u.rol === this.filtroRol;
+      const cumpleEstado = !this.filtroEstado || u.estado === this.filtroEstado;
+
+      return cumpleBusqueda && cumpleRol && cumpleEstado;
+    });
+
+    // Calcular contadores estadísticos para el HTML
+    this.totalActivos = this.usuarios.length;
+    this.totalAdmins = this.usuarios.filter(u => u.rol === 'ADMIN').length;
+    this.cdr.detectChanges();
+  }
+
+  // Rutinas para escuchar cambios de búsqueda en el input
+  buscar(event: any) {
+    this.busqueda = event.target.value;
+    this.filtrarUsuarios();
+  }
+
+  // --- CONTROL DE MODALES (Gestión / Detalles) ---
+  abrirDetalle(usuario: any) {
+    // Clonamos el objeto para no editar directamente sobre la tabla
+    this.usuarioSeleccionado = { ...usuario }; 
+    this.mostrarModal = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModal() {
+    this.mostrarModal = false;
+    this.usuarioSeleccionado = null;
+    this.cdr.detectChanges();
+  }
+
+  // --- CONTROL DE MODALES (Crear) ---
+  abrirModalCrear() {
+    this.nuevoUsuario = { username: '', email: '', Password: '', rol: 'JUGADOR', estado: 'ACTIVO' };
+    this.mostrarModalCrear = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalCrear() {
+    this.mostrarModalCrear = false;
+    this.cdr.detectChanges();
+  }
+
+  // --- OPERACIONES CRUD ASÍNCRONAS ---
+  async crear() {
+    try {
+      this.cargando = true;
+      await this._usuariosService.crearUsuario(this.nuevoUsuario);
+      this.cerrarModalCrear();
+      await this.cargarUsuarios(); // Recargar grilla
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async editar() {
+    try {
+      this.cargando = true;
+      await this._usuariosService.editarUsuario(this.usuarioSeleccionado);
+      this.cerrarModal();
+      await this.cargarUsuarios();
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async eliminar(id: number) {
+    if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
+      try {
+        this.cargando = true;
+        await this._usuariosService.eliminarUsuario(id);
+        this.cerrarModal();
+        await this.cargarUsuarios();
+      } catch (error) {
+        console.error(error);
+      }
     }
   }
 }

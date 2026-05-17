@@ -1,128 +1,86 @@
-<div class="casino-wrapper">
-
-  <!-- Partículas de fondo decorativas -->
-  <div class="bg-orb orb-1"></div>
-  <div class="bg-orb orb-2"></div>
-  <div class="bg-orb orb-3"></div>
-
-  <!-- HEADER -->
-  <header class="casino-header">
-    <div class="header-badge">🎰 Casino Online</div>
-    <h1 class="main-title">
-      Nuestros<br>
-      <span class="title-accent">Juegos</span>
-    </h1>
-    <p class="subtitle">Vive la emoción. Siente la adrenalina.</p>
-
-    <!-- Estadísticas rápidas -->
-    <div class="stats-row" *ngIf="!cargando">
-      <div class="stat-item">
-        <span class="stat-number">{{ juegos.length }}</span>
-        <span class="stat-label">Juegos</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-number">{{ juegosActivos }}</span>
-        <span class="stat-label">Activos</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-number">{{ tiposUnicos.length }}</span>
-        <span class="stat-label">Categorías</span>
-      </div>
-    </div>
-  </header>
-
-  <!-- LOADING STATE -->
-  <div class="loading-state" *ngIf="cargando">
-    <div class="spinner-ring"></div>
-    <p class="loading-text">Cargando juegos<span class="dots">...</span></p>
+<div class="dashboard-container">
+  
+  <div class="header-section">
+    <span class="badge-cyber">⚡ PANEL DE JUEGOS</span>
+    <h1 class="main-title">Gestión de <span>Juegos</span></h1>
+    <p class="subtitle">Control de catálogo, categorías y proveedores en tiempo real</p>
   </div>
 
-  <!-- CONTENIDO PRINCIPAL -->
-  <main class="main-content" *ngIf="!cargando">
+  <div class="loading-wrapper" *ngIf="isLoading">
+    <div class="cyber-spinner"></div>
+    <p class="loading-text">CARGANDO CARTELERA...</p>
+  </div>
 
-    <!-- Filtros -->
-    <div class="filters-bar">
-      <button
-        class="filter-btn"
-        [class.active]="filtroActivo === 'todos'"
-        (click)="setFiltro('todos')">
-        Todos
-      </button>
-      <button
-        class="filter-btn"
-        *ngFor="let tipo of tiposUnicos"
-        [class.active]="filtroActivo === tipo"
-        (click)="setFiltro(tipo)">
-        {{ tipo }}
-      </button>
-    </div>
-
-    <!-- Grid de juegos -->
-    <div class="games-grid">
-      <div
-        class="game-card"
-        *ngFor="let juego of juegosFiltrados; let i = index"
-        [class.en-mantenimiento]="juego.estado === 'mantenimiento'"
-        [style.animation-delay]="i * 0.1 + 's'">
-
-        <!-- Imagen y overlays -->
-        <div class="card-visual">
-          <div class="card-bg-glow"></div>
-
-          <!-- Icono temático según tipo -->
-          <div class="game-icon">
-            <span *ngIf="juego.tipo === 'Mesa'">🃏</span>
-            <span *ngIf="juego.tipo === 'Ruleta'">🎡</span>
-            <span *ngIf="juego.tipo === 'Tragamonedas'">🎰</span>
-            <span *ngIf="juego.tipo !== 'Mesa' && juego.tipo !== 'Ruleta' && juego.tipo !== 'Tragamonedas'">🎮</span>
-          </div>
-
-          <!-- Badge de estado -->
-          <div class="status-badge" [class.activo]="juego.estado === 'activo'" [class.mantenimiento]="juego.estado === 'mantenimiento'">
-            <span class="status-dot"></span>
-            {{ juego.estado === 'activo' ? 'En vivo' : 'Mantenimiento' }}
-          </div>
-
-          <!-- Overlay de jugar -->
-          <div class="play-overlay" *ngIf="juego.estado === 'activo'">
-            <button class="btn-play">
-              <span class="play-icon">▶</span>
-              Jugar Ahora
-            </button>
-          </div>
-
-          <!-- Overlay de mantenimiento -->
-          <div class="maintenance-overlay" *ngIf="juego.estado === 'mantenimiento'">
-            <span class="maintenance-icon">⚙️</span>
-            <p>En Mantenimiento</p>
-          </div>
-        </div>
-
-        <!-- Info del juego -->
-        <div class="card-info">
-          <div class="tags-row">
-            <span class="tag tag-tipo">{{ juego.tipo }}</span>
-            <span class="tag tag-proveedor">{{ juego.proveedor }}</span>
-          </div>
-          <h3 class="game-name">{{ juego.nombre }}</h3>
-          <div class="card-footer">
-            <span class="game-id">ID #{{ juego.id_usuario }}</span>
-            <div class="card-action" *ngIf="juego.estado === 'activo'">
-              <span class="live-dot"></span> En vivo
-            </div>
-          </div>
-        </div>
-
+  <div class="content-fade" *ngIf="!isLoading">
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-number">{{ totalJuegos }}</span>
+        <span class="stat-label">JUEGOS TOTALES</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-number">{{ juegosActivos }}</span>
+        <span class="stat-label">JUEGOS ACTIVOS</span>
       </div>
     </div>
 
-    <!-- Estado vacío -->
-    <div class="empty-state" *ngIf="juegosFiltrados.length === 0">
-      <span class="empty-icon">🎲</span>
-      <p>No hay juegos en esta categoría</p>
+    <div class="toolbar-section">
+      <div class="search-box">
+        <i class="search-icon">🔍</i>
+        <input 
+          type="text" 
+          [(ngModel)]="busqueda" 
+          (input)="filtrarJuegos()" 
+          placeholder="Buscar por nombre, tipo o proveedor...">
+      </div>
+      <button class="btn-primary" (click)="abrirModalCrear()">+ Nuevo Juego</button>
     </div>
 
-  </main>
+    <div class="table-container">
+      <table class="cyber-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>JUEGO / CATEGORÍA</th>
+            <th>PROVEEDOR</th>
+            <th>ESTADO</th>
+            <th>ACCIONES</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let juego of juegosFiltrados">
+            <td class="id-column">#{{ juego.idJuego }}</td>
+            <td>
+              <div class="game-info">
+                <div class="game-avatar">{{ juego.nombre.charAt(0) }}</div>
+                <div>
+                  <div class="game-name">{{ juego.nombre }}</div>
+                  <div class="game-type">{{ juego.tipo }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="provider-column">{{ juego.proveedor }}</td>
+            <td>
+              <span class="status-tag" [ngClass]="{
+                'status-activo': juego.estado === 'ACTIVO',
+                'status-mantenimiento': juego.estado === 'MANTENIMIENTO',
+                'status-inactivo': juego.estado === 'INACTIVO'
+              }">
+                {{ juego.estado }}
+              </span>
+            </td>
+            <td>
+              <button class="btn-manage" (click)="gestionarJuego(juego)">Gestionar</button>
+            </td>
+          </tr>
+          <tr *ngIf="juegosFiltrados.length === 0">
+            <td colspan="5" class="empty-table-message">
+              No se encontraron juegos que coincidan con la búsqueda.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
 </div>

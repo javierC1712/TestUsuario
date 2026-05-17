@@ -1,0 +1,136 @@
+// Variables Cyber-Casino
+$bg-dark: #0a0b10;
+$panel-bg: rgba(20, 22, 37, 0.6);
+$border-color: rgba(255, 255, 255, 0.08);
+$accent-neon: #8b5cf6;
+$text-bright: #ffffff;
+$text-muted: #94a3b8;
+
+// Colores de Estado
+$color-envivo: #ef4444;    // Rojo Neón para En Vivo
+$color-programado: #3b82f6; // Azul para Programado
+$color-finalizado: #64748b; // Gris para Terminado
+
+.usuarios-wrapper {
+  background-color: $bg-dark;
+  min-height: 100vh;
+  color: $text-bright;
+  font-family: 'Poppins', sans-serif;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+// Fondo de Orbes Luces
+.bg-orb {
+  position: absolute; border-radius: 50%; filter: blur(140px); z-index: 0; opacity: 0.35; pointer-events: none;
+}
+.orb-1 { width: 450px; height: 450px; background: $accent-neon; top: -10%; left: -5%; }
+.orb-2 { width: 400px; height: 400px; background: #3b82f6; bottom: -10%; right: -5%; }
+.orb-3 { width: 300px; height: 300px; background: #ec4899; top: 30%; left: 40%; }
+
+.usuarios-header, .main-content { position: relative; z-index: 1; max-width: 1250px; margin: 0 auto; }
+
+.usuarios-header {
+  margin-bottom: 3.5rem;
+  .header-badge {
+    background: rgba($accent-neon, 0.15); border: 1px solid rgba($accent-neon, 0.3);
+    color: #c084fc; padding: 0.5rem 1.2rem; border-radius: 30px; display: inline-block; font-size: 0.85rem; font-weight: 500; margin-bottom: 1rem;
+  }
+  .main-title {
+    font-size: 3.5rem; font-weight: 800; line-height: 1; margin-bottom: 0.8rem;
+    .title-accent { background: linear-gradient(135deg, #a78bfa, #f472b6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  }
+  .subtitle { color: $text-muted; font-size: 1.1rem; }
+  .stats-row {
+    margin-top: 2rem; background: $panel-bg; backdrop-filter: blur(12px); border: 1px solid $border-color; padding: 1.5rem; border-radius: 20px; width: fit-content;
+    .stat-number { font-size: 2rem; font-weight: 700; color: white; display: block; }
+    .stat-label { font-size: 0.75rem; color: $text-muted; text-transform: uppercase; letter-spacing: 1px; }
+  }
+}
+
+// Buscador y Botón Nuevo
+.toolbar {
+  display: flex; justify-content: space-between; align-items: center; gap: 2rem; margin-bottom: 2.5rem;
+  .search-box {
+    position: relative; flex: 1; max-width: 500px;
+    .search-icon { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+    .search-input {
+      width: 100%; background: $panel-bg; border: 1px solid $border-color; padding: 1rem 1rem 1rem 3.2rem; border-radius: 15px; color: white; transition: all 0.3s;
+      &:focus { outline: none; border-color: $accent-neon; box-shadow: 0 0 20px rgba($accent-neon, 0.2); }
+    }
+  }
+  .btn-crear {
+    background: linear-gradient(135deg, $accent-neon, #6d28d9); color: white; border: none; padding: 1rem 2rem; border-radius: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+    &:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba($accent-neon, 0.5); }
+  }
+}
+
+// Tabla Estilo Glassmorphism
+.table-container { background: $panel-bg; backdrop-filter: blur(20px); border: 1px solid $border-color; border-radius: 24px; overflow: hidden; }
+
+.usuarios-table {
+  width: 100%; border-collapse: collapse;
+  th { padding: 1.5rem; color: $text-muted; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid $border-color; text-align: left; }
+  .table-row {
+    border-bottom: 1px solid rgba(255,255,255,0.02); animation: fadeInUp 0.5s forwards; opacity: 0;
+    &:hover { background: rgba(255,255,255,0.03); }
+  }
+  td { padding: 1.5rem; vertical-align: middle; }
+  .td-id { color: $text-muted; font-family: 'Courier New', monospace; }
+  
+  .td-usuario {
+    display: flex; align-items: center; gap: 1rem;
+    .avatar { width: 45px; height: 45px; background: linear-gradient(135deg, #334155, #1e293b); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 800; }
+    .username-text { font-weight: 600; color: white; font-size: 1rem; display: block; }
+    .display-block { display: block; font-size: 0.8rem; color: $text-muted; }
+  }
+
+  .matchup {
+    display: flex; align-items: center; gap: 0.8rem; font-weight: 600;
+    .vs { color: $accent-neon; font-size: 0.7rem; background: rgba($accent-neon, 0.1); padding: 2px 6px; border-radius: 4px; }
+    .team { color: #e2e8f0; }
+  }
+
+  .role-badge {
+    padding: 0.5rem 1rem; border-radius: 10px; font-size: 0.75rem; font-weight: 700;
+    &.admin { background: rgba($color-envivo, 0.15); color: #f87171; border: 1px solid rgba($color-envivo, 0.3); box-shadow: 0 0 10px rgba($color-envivo, 0.2); }
+    &.jugador { background: rgba($color-programado, 0.15); color: #60a5fa; border: 1px solid rgba($color-programado, 0.3); }
+    &.bloqueado { background: rgba($color-finalizado, 0.1); color: #94a3b8; border: 1px solid $border-color; }
+  }
+
+  .btn-detalle {
+    background: rgba(255,255,255,0.05); border: 1px solid $border-color; color: white; padding: 0.6rem 1.2rem; border-radius: 10px; cursor: pointer; transition: 0.3s;
+    &:hover { background: white; color: $bg-dark; }
+  }
+}
+
+// Modales
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.modal-panel {
+  background: #111936; border: 1px solid $border-color; width: 90%; max-width: 550px; border-radius: 30px; padding: 3rem; position: relative;
+  animation: modalScale 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-header {
+  display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem;
+  .avatar.lg { width: 65px; height: 65px; font-size: 1.8rem; background: linear-gradient(135deg, $accent-neon, #3b82f6); border-radius: 18px; }
+  .modal-title { font-size: 1.8rem; font-weight: 700; }
+}
+.form-input {
+  width: 100%; background: rgba(0,0,0,0.3); border: 1px solid $border-color; padding: 1rem; border-radius: 12px; color: white; margin-top: 0.5rem;
+  &:focus { border-color: $accent-neon; outline: none; }
+}
+.row-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+.select-cyber { cursor: pointer; option { background: #111936; } }
+
+.modal-actions {
+  display: flex; gap: 1rem; margin-top: 2rem;
+  button { flex: 1; padding: 1rem; border-radius: 12px; font-weight: 700; cursor: pointer; border: none; transition: 0.3s; }
+  .btn-guardar { background: white; color: $bg-dark; &:hover { background: #cbd5e1; } }
+  .btn-eliminar { background: rgba($color-envivo, 0.1); color: #f87171; border: 1px solid rgba($color-envivo, 0.2); &:hover { background: $color-envivo; color: white; } }
+}
+
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes modalScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }

@@ -1,53 +1,70 @@
-import { HttpClient } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
-import { environment } from '../../environments/environment.development';
+import { Injectable } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: 'root'
 })
 export class JuegosService {
-  private http = inject(HttpClient);
 
-  // Obtener
-  async obtenerJuegos() {
-    return await lastValueFrom(this.http.get<any>(environment.urlJuegos));
+  // Recuerda tener mapeado urlJuegos en tus environments (ej: http://localhost:7575/juegos)
+  private apiUrl = environment.urlJuegos;
+
+  constructor() { }
+
+  // 1. Obtener todos los juegos (Mapea al @GetMapping del Controlador)
+  async obtenerJuegos(): Promise<any[]> {
+    try {
+      const response = await fetch(this.apiUrl);
+      if (!response.ok) throw new Error('Error al conectar con el microservicio de juegos');
+      return await response.json();
+    } catch (error) {
+      console.error('Error en obtenerJuegos:', error);
+      return [];
+    }
   }
 
-  // Agregar
-  async crearJuego(juegoNuevo: bodyAgregarJuego) {
-    return await lastValueFrom(this.http.post<any>(environment.urlJuegos, juegoNuevo));
+  // 2. Crear un nuevo juego (Mapea al @PostMapping("/crear"))
+  async crearJuego(juego: any): Promise<any> {
+    try {
+      const response = await fetch(`${this.apiUrl}/crear`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(juego)
+      });
+      if (!response.ok) throw new Error('Error al crear el juego');
+      return await response.json();
+    } catch (error) {
+      console.error('Error en crearJuego:', error);
+      return null;
+    }
   }
 
-  // Editar
-  async editarJuego(juegoEditado: bodyEditarJuego) {
-    return await lastValueFrom(this.http.put<any>(environment.urlJuegos, juegoEditado));
+  // 3. Actualizar datos de un juego (Mapea al @PutMapping("/actualizar"))
+  async actualizarJuego(juego: any): Promise<any> {
+    try {
+      const response = await fetch(`${this.apiUrl}/actualizar`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(juego)
+      });
+      if (!response.ok) throw new Error('Error al actualizar el juego');
+      return await response.json();
+    } catch (error) {
+      console.error('Error en actualizarJuego:', error);
+      return null;
+    }
   }
 
-  // Buscar por ID
-  async obtenerJuegoPorId(idJuego: number) {
-    return await lastValueFrom(this.http.get<any>(`${environment.urlJuegos}/${idJuego}`));
+  // 4. Eliminar un juego (Mapea al @DeleteMapping("/eliminar/{id}"))
+  async eliminarJuego(id: number): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.apiUrl}/eliminar/${id}`, {
+        method: 'DELETE'
+      });
+      return response.ok;
+    } catch (error) {
+      console.error('Error en eliminarJuego:', error);
+      return false;
+    }
   }
-
-  // Eliminar juegos
-  async eliminarJuego(idJuego: number) {
-    return await lastValueFrom(this.http.delete<any>(`${environment.urlJuegos}/${idJuego}`));
-  }
-}
-
-// interfaces de agregar y editar
-
-interface bodyAgregarJuego {
-  nombre: string;
-  tipo: string;
-  proveedor: string;
-  estado: string;
-}
-
-interface bodyEditarJuego {
-  id_usuario: number;
-  nombre: string;
-  tipo: string;
-  proveedor: string;
-  estado: string;
 }

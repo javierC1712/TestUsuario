@@ -1,0 +1,284 @@
+// Paleta de Colores Cyber-Casino
+$bg-dark: #0a0b10;
+$panel-bg: rgba(20, 22, 37, 0.6);
+$border-color: rgba(255, 255, 255, 0.08);
+$accent-neon: #8b5cf6; // Púrpura brillante
+$accent-glow: rgba(139, 92, 246, 0.4);
+$text-bright: #ffffff;
+$text-muted: #94a3b8;
+
+$color-diario: #3b82f6;   // Azul para lo diario
+$color-mensual: #10b981;  // Verde para lo mensual
+$color-danger: #ef4444;   // Rojo para eliminar
+
+.usuarios-wrapper {
+  background-color: $bg-dark;
+  min-height: 100vh;
+  color: $text-bright;
+  font-family: 'Poppins', sans-serif;
+  padding: 3rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+// Orbes de fondo difuminados
+.bg-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(140px);
+  z-index: 0;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.orb-1 { width: 400px; height: 400px; background: $accent-neon; top: -10%; left: -10%; }
+.orb-2 { width: 350px; height: 350px; background: #3b82f6; bottom: -5%; right: -5%; }
+.orb-3 { width: 300px; height: 300px; background: #ec4899; top: 40%; left: 50%; }
+
+.usuarios-header, .main-content {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.usuarios-header {
+  margin-bottom: 3rem;
+  
+  .header-badge {
+    background: rgba($accent-neon, 0.15);
+    border: 1px solid rgba($accent-neon, 0.3);
+    color: #c084fc;
+    padding: 0.5rem 1rem;
+    border-radius: 30px;
+    display: inline-block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    box-shadow: 0 0 15px rgba($accent-neon, 0.1);
+  }
+
+  .main-title {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    margin-bottom: 0.5rem;
+    
+    .title-accent {
+      background: linear-gradient(135deg, #a78bfa, #f472b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  }
+
+  .subtitle {
+    color: $text-muted;
+    font-size: 1.1rem;
+  }
+
+  .stats-row {
+    display: flex;
+    margin-top: 2rem;
+    background: $panel-bg;
+    backdrop-filter: blur(12px);
+    border: 1px solid $border-color;
+    padding: 1.5rem 2rem;
+    border-radius: 16px;
+    width: fit-content;
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      .stat-number { font-size: 1.8rem; font-weight: 700; color: $text-bright;}
+      .stat-label { font-size: 0.8rem; color: $text-muted; text-transform: uppercase; margin-top: 0.2rem;}
+    }
+  }
+}
+
+// Barra de herramientas (Buscador y botón)
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  .search-box {
+    position: relative;
+    flex: 1;
+    max-width: 450px;
+
+    .search-icon { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); opacity: 0.5; }
+    .search-input {
+      width: 100%;
+      background: $panel-bg;
+      border: 1px solid $border-color;
+      padding: 0.8rem 1rem 0.8rem 2.8rem;
+      border-radius: 12px;
+      color: $text-bright;
+      font-size: 0.95rem;
+      transition: all 0.3s ease;
+      &:focus { outline: none; border-color: $accent-neon; box-shadow: 0 0 15px rgba($accent-neon, 0.2); }
+    }
+  }
+
+  .btn-crear {
+    background: linear-gradient(135deg, $accent-neon, #6d28d9);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px $accent-glow;
+    &:hover { transform: translateY(-2px); box-shadow: 0 6px 25px rgba($accent-neon, 0.6); }
+  }
+}
+
+// Estructura de la Tabla Glassmorphism
+.table-container {
+  background: $panel-bg;
+  backdrop-filter: blur(16px);
+  border: 1px solid $border-color;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+}
+
+.usuarios-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+
+  th {
+    padding: 1.2rem 1.5rem;
+    color: $text-muted;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    font-weight: 600;
+    border-bottom: 1px solid $border-color;
+  }
+
+  .table-row {
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: all 0.2s ease;
+    opacity: 0;
+    animation: fadeInUp 0.4s forwards ease-out;
+
+    &:hover { background: rgba(255,255,255,0.02); }
+  }
+
+  td { padding: 1.2rem 1.5rem; vertical-align: middle; }
+
+  .td-usuario {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    
+    .avatar {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #475569, #334155);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; color: white;
+    }
+    .username-text { font-weight: 600; color: $text-bright; }
+  }
+
+  .td-email { font-weight: 500; color: #e2e8f0; }
+  .td-id { color: $text-muted; font-size: 0.9rem; }
+
+  // Badges estilizados para montos
+  .role-badge {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+    
+    &.jugador { background: rgba($color-diario, 0.15); color: #60a5fa; border: 1px solid rgba($color-diario, 0.3); }
+    &.admin { background: rgba($color-mensual, 0.15); color: #34d399; border: 1px solid rgba($color-mensual, 0.3); }
+  }
+
+  .btn-detalle {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid $border-color;
+    color: $text-bright;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    &:hover { background: white; color: $bg-dark; border-color: white; }
+  }
+}
+
+// Estados de carga y vacío
+.loading-state, .empty-state {
+  text-align: center; padding: 5rem 2rem;
+  .loading-text, p { color: $text-muted; font-size: 1.1rem; margin-top: 1rem; }
+}
+.spinner-ring {
+  width: 50px; height: 50px; border: 3px solid rgba($accent-neon, 0.1);
+  border-top-color: $accent-neon; border-radius: 50%;
+  margin: 0 auto; animation: spin 1s infinite linear;
+}
+
+// Modales Cyberpunk Completos
+.modal-backdrop {
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+  background: rgba(4, 5, 10, 0.8); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center; z-index: 999;
+}
+
+.modal-panel {
+  background: #131524;
+  border: 1px solid rgba(255,255,255,0.1);
+  width: 100%; max-width: 500px;
+  border-radius: 24px; padding: 2.5rem;
+  position: relative; box-shadow: 0 25px 50px rgba(0,0,0,0.5);
+  animation: modalScale 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  .modal-close {
+    position: absolute; top: 1.5rem; right: 1.5rem;
+    background: none; border: none; color: $text-muted;
+    font-size: 1.2rem; cursor: pointer; &:hover { color: white; }
+  }
+
+  .modal-header {
+    display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;
+    .avatar.lg { width: 55px; height: 55px; font-size: 1.5rem; background: linear-gradient(135deg, $accent-neon, #3b82f6);}
+    .modal-title { font-size: 1.5rem; font-weight: 700; }
+    .modal-subtitle { color: $text-muted; font-size: 0.9rem; }
+  }
+
+  .modal-form {
+    display: flex; flex-direction: column; gap: 1.2rem; margin-bottom: 2rem;
+    
+    .form-group {
+      display: flex; flex-direction: column; gap: 0.5rem;
+      .form-label { font-size: 0.85rem; color: $text-muted; font-weight: 500; }
+      .form-input {
+        background: rgba(0,0,0,0.2); border: 1px solid $border-color;
+        padding: 0.8rem 1rem; border-radius: 10px; color: white; font-size: 1rem;
+        &:focus { outline: none; border-color: $accent-neon; }
+      }
+    }
+  }
+
+  .modal-actions {
+    display: flex; gap: 1rem;
+    button { flex: 1; padding: 0.8rem; border-radius: 10px; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-guardar { background: white; color: $bg-dark; &:hover { background: #e2e8f0; } }
+    .btn-eliminar { background: rgba($color-danger, 0.1); color: #f87171; border: 1px solid rgba($color-danger, 0.2); &:hover { background: $color-danger; color: white; } }
+  }
+}
+
+// Animaciones Globales
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes modalScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }

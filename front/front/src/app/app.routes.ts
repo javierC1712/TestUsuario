@@ -4,6 +4,7 @@ import { VerUsuariosComponent } from './pages/usuarios-component/usuarios-compon
 import { BilleteraComponent } from './pages/billetera-component/billetera-component';
 import { LimitesresponsablesComponent } from './pages/limitesresponsables-component/limitesresponsables-component';
 import { EventosComponent } from './pages/eventos-component/eventos-component';
+import { ApuestasComponent } from './pages/apuestas-component/apuestas-component';
 
 export const routes: Routes = [
   {
@@ -19,10 +20,15 @@ export const routes: Routes = [
     component: BilleteraComponent
   },
   { path: 'limites',
-     component: LimitesresponsablesComponent },
+     component: LimitesresponsablesComponent
+  },
   {
     path: 'eventos',
-    component: EventosComponent},
-
+    component: EventosComponent
+  },
+  {
+    path: 'apuestas',
+    component: ApuestasComponent
+  },
 
 ];

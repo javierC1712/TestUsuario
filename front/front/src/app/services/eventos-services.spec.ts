@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { EventosService } from './eventos-services'; // 👈 CORREGIDO: Sin la 's' al final de la clase
+import { EventosService } from './eventos-services';
 
 describe('EventosService', () => {
   let service: EventosService; // 👈 CORREGIDO

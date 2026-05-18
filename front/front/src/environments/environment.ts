@@ -4,5 +4,6 @@ export const environment = {
   "urlUser": "http://localhost:7575/usuario",
   "urlLimites": "http://localhost:7575/limites",
   "urlEventos": 'http://localhost:7575/eventos',
+  "urlApuestas": "http://localhost:7575/apuestas"
 
 };

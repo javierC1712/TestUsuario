@@ -1,5 +1,6 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core'; // <-- 1. Agrega ChangeDetectorRef aquí arriba
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { BilleteraService } from '../../services/billetera-service';
 
 export interface Billetera {
@@ -15,19 +16,29 @@ export interface Billetera {
 @Component({
   selector: 'app-billetera-component',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './billetera-component.html',
   styleUrl: './billetera-component.scss',
 })
 export class BilleteraComponent implements OnInit {
   private billeteraService = inject(BilleteraService);
-  private cdr = inject(ChangeDetectorRef); // <-- 2. Inyecta el detector de cambios aquí
+  private cdr = inject(ChangeDetectorRef);
 
   billeteras: Billetera[] = [];
   cargando: boolean = true;
   filtroActivo: string = 'todas';
+
   billeteraSeleccionada: Billetera | null = null;
   mostrarModal: boolean = false;
+  mostrarModalCrear: boolean = false;
+
+  nuevaBilletera = {
+    id_usuario: 1001,
+    saldo: 0,
+    saldo_bloqueado: 0,
+    moneda: 'USD',
+    estado: 'activo'
+  };
 
   get billeterasFiltradas(): Billetera[] {
     if (this.filtroActivo === 'todas') return this.billeteras;
@@ -50,11 +61,21 @@ export class BilleteraComponent implements OnInit {
 
   setFiltro(filtro: string): void {
     this.filtroActivo = filtro;
-    this.cdr.detectChanges(); // Fuerza el redibujado al cambiar filtros
+    this.cdr.detectChanges();
+  }
+
+  abrirModalCrear(): void {
+    this.nuevaBilletera = { id_usuario: 1001, saldo: 0, saldo_bloqueado: 0, moneda: 'USD', estado: 'activo' };
+    this.mostrarModalCrear = true;
+    this.cdr.detectChanges();
+  }
+
+  cerrarModalCrear(): void {
+    this.mostrarModalCrear = false;
   }
 
   abrirDetalle(billetera: Billetera): void {
-    this.billeteraSeleccionada = billetera;
+    this.billeteraSeleccionada = { ...billetera };
     this.mostrarModal = true;
     this.cdr.detectChanges();
   }
@@ -73,12 +94,50 @@ export class BilleteraComponent implements OnInit {
     });
   }
 
+  // ============================================================
+  // OPERACIONES CRUD (ACCIONES DEL BACKEND)
+  // ============================================================
+
+  // 1. Guardar nueva billetera (CREATE)
+  crear(): void {
+    this.billeteraService.crearBilletera(this.nuevaBilletera).subscribe({
+      next: (billeteraCreada) => {
+        this.billeteras.push(billeteraCreada); // Agrega la billetera devuelta por Java a la grilla
+        this.cerrarModalCrear();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al crear billetera:', error);
+      }
+    });
+  }
+
+  // 2. Guardar edición de saldos o estado (UPDATE)
+  editar(): void {
+    if (!this.billeteraSeleccionada) return;
+
+    this.billeteraService.editarBilletera(this.billeteraSeleccionada).subscribe({
+      next: (billeteraActualizada) => {
+        const index = this.billeteras.findIndex(b => b.id_billetera === billeteraActualizada.id_billetera);
+        if (index !== -1) {
+          this.billeteras[index] = billeteraActualizada;
+        }
+        this.cerrarModal();
+        this.cdr.detectChanges();
+      },
+      error: (error) => {
+        console.error('Error al actualizar billetera:', error);
+      }
+    });
+  }
+
+  // 3. Eliminar registro (DELETE)
   eliminar(id: number): void {
     this.billeteraService.eliminarBilletera(id).subscribe({
       next: () => {
         this.billeteras = this.billeteras.filter(b => b.id_billetera !== id);
         this.cerrarModal();
-        this.cdr.detectChanges(); // Avisa que se eliminó una card
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al eliminar billetera:', error);
@@ -87,20 +146,16 @@ export class BilleteraComponent implements OnInit {
   }
 
   ngOnInit() {
-    console.log('Iniciando la carga de billeteras del casino...');
-
     this.billeteraService.obtenerBilleteras().subscribe({
       next: (data) => {
-        console.log('¡Datos mapeados con éxito en Angular!', data);
         this.billeteras = data || [];
         this.cargando = false;
-
-        this.cdr.detectChanges(); // <-- 3. ¡LA MAGIA! Fuerza a Angular a ocultar el spinner y renderizar las tarjetas
+        this.cdr.detectChanges();
       },
       error: (error) => {
         console.error('Error al conectar con el microservicio:', error);
         this.cargando = false;
-        this.cdr.detectChanges(); // También aquí por si falla
+        this.cdr.detectChanges();
       }
     });
   }

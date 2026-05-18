@@ -12,18 +12,17 @@ import { EventosService } from '../../services/eventos-services';
 })
 export class EventosComponent implements OnInit {
 
-  // Listas de almacenamiento
+  
   eventos: any[] = [];
   eventosFiltrados: any[] = [];
 
-  // Variables de control de UI
+  
   cargando: boolean = true;
   busqueda: string = '';
   mostrarModal: boolean = false;
   mostrarModalCrear: boolean = false;
   eventoSeleccionado: any = null;
 
-  // Modelo para capturar nuevos eventos
   nuevoEvento = {
     nombre: '',
     deporte: '',
@@ -43,14 +42,13 @@ export class EventosComponent implements OnInit {
     await this.cargarEventos();
   }
 
-  // Carga principal desde Spring Boot
   async cargarEventos() {
     this.cargando = true;
     try {
       console.log('Solicitando partidos al microservicio...');
       const data = await this._eventosService.obtenerEventos();
       console.log('Partidos recibidos:', data);
-      
+
       this.eventos = data || [];
       this.eventosFiltrados = data || [];
     } catch (error) {
@@ -59,7 +57,7 @@ export class EventosComponent implements OnInit {
       this.eventosFiltrados = [];
     } finally {
       this.cargando = false;
-      this.cdr.detectChanges(); 
+      this.cdr.detectChanges();
     }
   }
 
@@ -69,21 +67,34 @@ export class EventosComponent implements OnInit {
       this.eventosFiltrados = this.eventos;
     } else {
       const termino = this.busqueda.toLowerCase();
-      this.eventosFiltrados = this.eventos.filter(e => 
-        e.nombre?.toLowerCase().includes(termino) || 
+      this.eventosFiltrados = this.eventos.filter(e =>
+        e.nombre?.toLowerCase().includes(termino) ||
         e.deporte?.toLowerCase().includes(termino)
       );
     }
     this.cdr.detectChanges();
   }
 
-
-  abrirModalCrear() { this.mostrarModalCrear = true; this.cdr.detectChanges(); }
-  cerrarModalCrear() {
-    this.mostrarModalCrear = false;
-    this.nuevoEvento = { nombre: '', deporte: '', liga: '', equipoLocal: '', equipoVisitante: '', fechaInicio: '', estado: 'PROGRAMADO' };
+  // ─── Modal Crear ────────────────────────────────────────────────────────────
+  abrirModalCrear() {
+    this.mostrarModalCrear = true;
     this.cdr.detectChanges();
   }
+
+  cerrarModalCrear() {
+    this.mostrarModalCrear = false;
+    this.nuevoEvento = {
+      nombre: '',
+      deporte: '',
+      liga: '',
+      equipoLocal: '',
+      equipoVisitante: '',
+      fechaInicio: '',
+      estado: 'PROGRAMADO'
+    };
+    this.cdr.detectChanges();
+  }
+
   async crear() {
     if (!this.nuevoEvento.nombre || !this.nuevoEvento.deporte) {
       alert('Por favor, ingresa el nombre y el deporte del evento.');
@@ -95,12 +106,18 @@ export class EventosComponent implements OnInit {
     await this.cargarEventos();
   }
 
+  // ─── Modal Editar / Eliminar ─────────────────────────────────────────────────
   abrirDetalle(evento: any) {
     this.eventoSeleccionado = { ...evento };
     this.mostrarModal = true;
     this.cdr.detectChanges();
   }
-  cerrarModal() { this.mostrarModal = false; this.eventoSeleccionado = null; this.cdr.detectChanges(); }
+
+  cerrarModal() {
+    this.mostrarModal = false;
+    this.eventoSeleccionado = null;
+    this.cdr.detectChanges();
+  }
 
   async editar() {
     const res = await this._eventosService.actualizarEvento(this.eventoSeleccionado);

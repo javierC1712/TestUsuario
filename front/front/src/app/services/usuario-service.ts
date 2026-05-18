@@ -1,22 +1,18 @@
 import { Injectable } from '@angular/core';
-import { environment } from '../../environments/environment'; // Importación de tus environments
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UsuariosService {
 
-  // 👈 Aquí usamos tu variable exacta del environment
-  private apiUrl = environment.urlUser; 
+  private apiUrl = environment.urlUser;
 
   constructor() { }
 
-  // 1. Obtener todos los usuarios desde Spring Boot
   async obtenerUsuarios(): Promise<any[]> {
     try {
-      // Forzamos explícitamente el uso de environment.urlUser (http://localhost:7575/usuario)
       console.log('Llamando a la URL de usuarios:', this.apiUrl);
-      
       const response = await fetch(this.apiUrl);
       if (!response.ok) throw new Error('Error en la respuesta del servidor');
       return await response.json();
@@ -26,46 +22,43 @@ export class UsuariosService {
     }
   }
 
-  // 2. Registrar un nuevo usuario
-  async crearUsuario(usuario: any): Promise<any> {
+  async crearUsuario(usuario: any): Promise<boolean> {
     try {
       const response = await fetch(`${this.apiUrl}/crear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(usuario)
       });
-      return await response.text();
+      return response.ok;
     } catch (error) {
       console.error(error);
-      return 'Error';
+      return false;
     }
   }
 
-  // 3. Modificar datos de un usuario existente
-  async editarUsuario(usuario: any): Promise<any> {
+  async actualizarUsuario(usuario: any): Promise<boolean> {
     try {
       const response = await fetch(`${this.apiUrl}/actualizar`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(usuario)
       });
-      return await response.text();
+      return response.ok;
     } catch (error) {
       console.error(error);
-      return 'Error';
+      return false;
     }
   }
 
-  // 4. Eliminar un usuario de la BD
-  async eliminarUsuario(id: number): Promise<any> {
+  async eliminarUsuario(id: number): Promise<boolean> {
     try {
       const response = await fetch(`${this.apiUrl}/eliminar/${id}`, {
         method: 'DELETE'
       });
-      return await response.text();
+      return response.ok;
     } catch (error) {
       console.error(error);
-      return 'Error';
+      return false;
     }
   }
 }

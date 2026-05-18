@@ -1,25 +1,25 @@
 import { Routes } from '@angular/router';
-import { JuegosComponent } from './pages/ver-juegos-component/ver-juegos-component';
-import { UsuariosComponent } from './pages/usuarios-component/usuarios-component';
+import { VerJuegosComponent } from './pages/ver-juegos-component/ver-juegos-component';
+import { VerUsuariosComponent } from './pages/usuarios-component/usuarios-component';
 import { BilleteraComponent } from './pages/billetera-component/billetera-component';
-import { LimitesResponsablesComponent } from './pages/limitesresponsables-component/limitesresponsables-component';
+import { LimitesresponsablesComponent } from './pages/limitesresponsables-component/limitesresponsables-component';
 import { EventosComponent } from './pages/eventos-component/eventos-component';
 
 export const routes: Routes = [
   {
     path: 'juegos',
-    component: JuegosComponent
+    component: VerJuegosComponent
   },
   {
     path: 'usuarios',
-    component: UsuariosComponent
+    component: VerUsuariosComponent
   },
   {
     path: 'billetera',
     component: BilleteraComponent
   },
   { path: 'limites',
-     component: LimitesResponsablesComponent },
+     component: LimitesresponsablesComponent },
   {
     path: 'eventos',
     component: EventosComponent},

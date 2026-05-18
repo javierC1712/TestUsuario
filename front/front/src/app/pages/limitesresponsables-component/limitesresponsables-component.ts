@@ -1,109 +1,139 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core'; // 👈 Añadido ChangeDetectorRef
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LimitesService } from '../../services/limitesresponsables-service';
 
 @Component({
-  selector: 'app-limites-responsables',
+  selector: 'app-limitesresponsables',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './limitesresponsables-component.html',
   styleUrls: ['./limitesresponsables-component.scss']
 })
-export class LimitesResponsablesComponent implements OnInit {
+export class LimitesresponsablesComponent implements OnInit {
 
   limites: any[] = [];
   limitesFiltrados: any[] = [];
   cargando: boolean = true;
+
   busqueda: string = '';
+
   mostrarModal: boolean = false;
   mostrarModalCrear: boolean = false;
-  limiteSeleccionado: any = null;
+  mostrarModalEliminar: boolean = false;
 
-  nuevoLimite = {
+  limiteSeleccionado: any = null;
+  nuevoLimite: any = {
     usuariosIdUsuario: null,
-    limiteDiario: 0,
-    limiteMensual: 0,
-    montoApostadoDiario: 0,
-    montoApostadoMensual: 0
+    limiteDiario: null,
+    limiteMensual: null
   };
 
-  // 👈 Inyectamos el cdr en el constructor
   constructor(
-    private _limitesService: LimitesService,
-    private cdr: ChangeDetectorRef 
+    private limitesService: LimitesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   async ngOnInit() {
     await this.cargarLimites();
   }
 
+  // ── Carga ──────────────────────────────────────────
   async cargarLimites() {
     this.cargando = true;
     try {
-      console.log('Enviando petición fetch al microservicio de límites...');
-      const data = await this._limitesService.obtenerLimites();
-      
-      console.log('Datos brutos recibidos desde el Backend:', data);
-      
-      this.limites = data || [];
-      this.limitesFiltrados = data || [];
-      
+      const datos = await this.limitesService.obtenerLimites();
+      this.limites = datos || [];
+      this.limitesFiltrados = [...this.limites];
     } catch (error) {
-      console.error('Error crítico al conectar el componente con el servicio:', error);
-      this.limites = [];
-      this.limitesFiltrados = [];
+      console.error(error);
     } finally {
       this.cargando = false;
-      console.log('Proceso de carga finalizado en el Front. Cargando =', this.cargando);
-      
-      // 👈 ¡ESTA LÍNEA ES LA MAGIA! Fuerza a Angular a redibujar la pantalla ahora ya
-      this.cdr.detectChanges(); 
+      this.cdr.detectChanges();
     }
   }
 
+  // ── Filtro ─────────────────────────────────────────
   filtrar() {
-    if (!this.busqueda) {
-      this.limitesFiltrados = this.limites;
-    } else {
-      this.limitesFiltrados = this.limites.filter(l => 
-        l.usuariosIdUsuario?.toString().includes(this.busqueda)
-      );
+    const termino = this.busqueda.trim().toLowerCase();
+    if (!termino) {
+      this.limitesFiltrados = [...this.limites];
+      return;
     }
-    this.cdr.detectChanges(); // También forzamos el refresco al buscar
+    this.limitesFiltrados = this.limites.filter(l =>
+      String(l.usuariosIdUsuario).includes(termino)
+    );
   }
 
-  abrirModalCrear() { this.mostrarModalCrear = true; this.cdr.detectChanges(); }
-  cerrarModalCrear() { 
-    this.mostrarModalCrear = false; 
-    this.nuevoLimite = { usuariosIdUsuario: null, limiteDiario: 0, limiteMensual: 0, montoApostadoDiario: 0, montoApostadoMensual: 0 };
-    this.cdr.detectChanges(); 
+  // ── Crear ──────────────────────────────────────────
+  abrirModalCrear() {
+    this.nuevoLimite = { usuariosIdUsuario: null, limiteDiario: null, limiteMensual: null };
+    this.mostrarModalCrear = true;
+  }
+
+  cerrarModalCrear() {
+    this.mostrarModalCrear = false;
   }
 
   async crear() {
-    if (!this.nuevoLimite.usuariosIdUsuario) { alert('Por favor, digita el ID del usuario.'); return; }
-    const res = await this._limitesService.crearLimite(this.nuevoLimite);
-    alert(res);
-    this.cerrarModalCrear();
+    if (!this.nuevoLimite.usuariosIdUsuario || !this.nuevoLimite.limiteDiario || !this.nuevoLimite.limiteMensual) {
+      alert('Por favor complete todos los campos.');
+      return;
+    }
+    this.mostrarModalCrear = false;
+    this.cargando = true;
+    const respuesta = await this.limitesService.crearLimite(this.nuevoLimite);
+    alert(respuesta ?? 'Límite creado con éxito');
     await this.cargarLimites();
   }
 
-  abrirDetalle(limite: any) { this.limiteSeleccionado = { ...limite }; this.mostrarModal = true; this.cdr.detectChanges(); }
-  cerrarModal() { this.mostrarModal = false; this.limiteSeleccionado = null; this.cdr.detectChanges(); }
+  // ── Editar ─────────────────────────────────────────
+  abrirDetalle(limite: any) {
+    this.limiteSeleccionado = { ...limite };
+    this.mostrarModal = true;
+  }
+
+  cerrarModal() {
+    this.mostrarModal = false;
+    this.limiteSeleccionado = null;
+  }
 
   async editar() {
-    const res = await this._limitesService.actualizarLimite(this.limiteSeleccionado);
-    alert(res);
-    this.cerrarModal();
+    if (
+      this.limiteSeleccionado.limiteDiario == null ||
+      this.limiteSeleccionado.limiteMensual == null
+    ) {
+      alert('Por favor complete todos los campos.');
+      return;
+    }
+    this.mostrarModal = false;
+    this.cargando = true;
+    const respuesta = await this.limitesService.actualizarLimite(this.limiteSeleccionado);
+    alert(respuesta ?? 'Límite actualizado con éxito');
     await this.cargarLimites();
+  }
+
+  // ── Eliminar ───────────────────────────────────────
+  confirmarEliminar() {
+    this.mostrarModal = false;
+    this.mostrarModalEliminar = true;
+  }
+
+  cancelarEliminar() {
+    this.mostrarModalEliminar = false;
+    this.mostrarModal = true;
   }
 
   async eliminar(id: number) {
-    if (confirm('¿Estás seguro?')) {
-      const res = await this._limitesService.eliminarLimite(id);
-      alert(res);
-      this.cerrarModal();
-      await this.cargarLimites();
+    if (!id) {
+      alert('No se pudo identificar el ID del límite.');
+      return;
     }
+    this.mostrarModalEliminar = false;
+    this.cargando = true;
+    const respuesta = await this.limitesService.eliminarLimite(id);
+    this.limiteSeleccionado = null;
+    alert(respuesta ?? 'Límite eliminado');
+    await this.cargarLimites();
   }
 }

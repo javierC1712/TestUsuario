@@ -6,64 +6,57 @@ import { environment } from '../../environments/environment';
 })
 export class JuegosService {
 
-  // Recuerda tener mapeado urlJuegos en tus environments (ej: http://localhost:7575/juegos)
-  private apiUrl = environment.urlJuegos;
+  private apiUrl = environment.urlJuegos; // Asegúrate de tener urlGames en tu environment
 
   constructor() { }
 
-  // 1. Obtener todos los juegos (Mapea al @GetMapping del Controlador)
   async obtenerJuegos(): Promise<any[]> {
     try {
       const response = await fetch(this.apiUrl);
-      if (!response.ok) throw new Error('Error al conectar con el microservicio de juegos');
+      if (!response.ok) throw new Error('Error en la respuesta del servidor');
       return await response.json();
     } catch (error) {
-      console.error('Error en obtenerJuegos:', error);
+      console.error(error);
       return [];
     }
   }
 
-  // 2. Crear un nuevo juego (Mapea al @PostMapping("/crear"))
-  async crearJuego(juego: any): Promise<any> {
+  async crearJuego(juego: any): Promise<boolean> {
     try {
       const response = await fetch(`${this.apiUrl}/crear`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(juego)
       });
-      if (!response.ok) throw new Error('Error al crear el juego');
-      return await response.json();
+      return response.ok;
     } catch (error) {
-      console.error('Error en crearJuego:', error);
-      return null;
+      console.error(error);
+      return false;
     }
   }
 
-  // 3. Actualizar datos de un juego (Mapea al @PutMapping("/actualizar"))
-  async actualizarJuego(juego: any): Promise<any> {
+  async actualizarJuego(juego: any): Promise<boolean> {
     try {
       const response = await fetch(`${this.apiUrl}/actualizar`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(juego)
       });
-      if (!response.ok) throw new Error('Error al actualizar el juego');
-      return await response.json();
+      return response.ok;
     } catch (error) {
-      console.error('Error en actualizarJuego:', error);
-      return null;
+      console.error(error);
+      return false;
     }
   }
 
-  // 4. Eliminar un juego (Mapea al @DeleteMapping("/eliminar/{id}"))
   async eliminarJuego(id: number): Promise<boolean> {
     try {
-      const response = await fetch(`${this.apiUrl}/eliminar/${id}`, {
+      const response = await fetch(`${this.apiUrl}/${id}`, {
         method: 'DELETE'
       });
       return response.ok;
     } catch (error) {
-      console.error('Error en eliminarJuego:', error);
+      console.error(error);
       return false;
     }
   }
